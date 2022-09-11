@@ -5,8 +5,6 @@ import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 
-import java.time.Duration;
-
 /**
  * global config for our web service.
  * 2022/9/9 18:14
@@ -21,9 +19,11 @@ public class WebConfig implements WebFluxConfigurer {
         registry.addMapping("/**")
                 .allowedHeaders("*")
                 .allowedMethods("*")
-                .allowedOrigins("*")
+                .exposedHeaders("*")
+                .allowedOrigins("http://localhost:2800")
+                .allowCredentials(false);
                 // By default, this is set to 1800 seconds (30 minutes)
-                .maxAge(Duration.ofHours(72).toSeconds());
+                // .maxAge(Duration.ofHours(24).toSeconds());
     }
 
 }
