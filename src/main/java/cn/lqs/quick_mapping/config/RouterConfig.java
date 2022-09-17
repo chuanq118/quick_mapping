@@ -33,6 +33,8 @@ public class RouterConfig {
         return RouterFunctions.route()
                 // 登录获取 token
                 .POST("/mapping/token", RequestPredicates.accept(MediaType.APPLICATION_JSON), loginHandler::getToken)
+                .GET("/mapping/system/menu/admin", loginHandler::getAdminMenuList)
+                .GET("/mapping/system/menu/user", loginHandler::getUserMenuList)
                 // 项目根路径
                 .GET("/mapping", RequestPredicates.accept(MediaType.ALL), indexHandler::indexPage)
                 .build();
