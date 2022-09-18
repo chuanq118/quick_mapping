@@ -1,0 +1,6 @@
+POST /mapping/resource/create
+Content-Type: application/json
+
+{
+  "mediaType": "application/octet-stream"
+}
