@@ -1,6 +1,8 @@
 package cn.lqs.quick_mapping.handler;
 
 import cn.lqs.quick_mapping.entity.UniResponse;
+import cn.lqs.quick_mapping.util.DateTimeUtil;
+import cn.lqs.quick_mapping.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
@@ -10,6 +12,8 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
+
+import static cn.lqs.quick_mapping.config.QMConstants.DIR;
 
 /**
  * 总路由 / 大范围路由 handler
@@ -38,8 +42,10 @@ public class IndexHandler {
     public Mono<ServerResponse> upload(ServerRequest request) {
         return ServerResponse.ok()
                 .body(request.bodyToFlux(FilePart.class).flatMap((filePart)->{
-                    return filePart.transferTo(Path.of("")).map((unused) -> {
-                        return new UniResponse<>();
+                    final String savedFilename =
+                            DateTimeUtil.nowDtStrOfNumber() + "_" + RandomUtil.ranStrOfCapital(8);
+                    return filePart.transferTo(Path.of(DIR, savedFilename)).map((unused) -> {
+                        return new UniResponse<>(200, "success", savedFilename);
                     });
                 }), UniResponse.class);
     }
