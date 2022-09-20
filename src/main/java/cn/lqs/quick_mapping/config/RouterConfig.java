@@ -42,8 +42,10 @@ public class RouterConfig {
                 // 登录获取 token
                 .POST("/mapping/token", RequestPredicates.accept(MediaType.APPLICATION_JSON), loginHandler::getToken)
                 .POST("/mapping/resource/create", RequestPredicates.accept(MediaType.APPLICATION_JSON), resourceHandler::createRes)
+                .POST("/mapping/upload", RequestPredicates.accept(MediaType.MULTIPART_FORM_DATA), indexHandler::upload)
                 .GET("/mapping/system/menu/admin", loginHandler::getAdminMenuList)
                 .GET("/mapping/system/menu/user", loginHandler::getUserMenuList)
+                .GET("/mapping/system/version", indexHandler::currentVersion)
                 .GET("/mapping/m/{res_id}", memResourceHandler::getMemRes)
                 // 项目根路径
                 .GET("/mapping", RequestPredicates.accept(MediaType.ALL), indexHandler::indexPage)

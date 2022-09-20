@@ -4,7 +4,6 @@ import cn.lqs.quick_mapping.entity.resource.Source;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
 
@@ -16,12 +15,11 @@ import java.time.LocalDateTime;
 @Builder
 public class ResourceItem {
 
-    private long id;
+    private String key;
 
-    @JsonIgnore
-    private MediaType mediaType;
+    private String filename;
 
-    private String resName;
+    private String contentType;
 
     @JsonIgnore
     private Source source;

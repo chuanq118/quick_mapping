@@ -4,5 +4,9 @@ server:
 spring:
   application:
     name: Quick_Mapping
+    version: 1.0
   jackson:
     default-property-inclusion: non_null
+  servlet:
+    multipart:
+      max-file-size: 500MB
