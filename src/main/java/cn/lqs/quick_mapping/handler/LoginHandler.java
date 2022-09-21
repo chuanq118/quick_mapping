@@ -43,7 +43,23 @@ public class LoginHandler {
                             Menu.builder().name("userCenter").path("/usercenter").component("userCenter")
                                     .meta(Meta.builder().title("账号信息").icon("el-icon-user").tag("NEW").build()).build()
                     ))
-                    .build()
+                    .build(),
+            // 上传页面
+            Menu.builder().name("upload").path("/upload").component("quick_mapping/Upload")
+                    .meta(Meta.builder().icon("sc-icon-Upload").title("上传").build()).build(),
+            // 资源菜单
+            Menu.builder().name("resource").path("/resource")
+                    .meta(Meta.builder().icon("sc-icon-Resource").title("资源").build())
+                    .children(List.of(
+                            // 管理资源列表
+                            Menu.builder().name("resource-manage").path("/resource/manage")
+                                    .meta(Meta.builder().icon("sc-icon-ResourceManage").title("管理").build())
+                                    .component("quick_mapping/resource/ResourceManage").build(),
+                            // 创建一个资源
+                            Menu.builder().name("resource-create").path("/resource/create")
+                                    .meta(Meta.builder().icon("sc-icon-ResourceCreate").title("创建").build())
+                                    .component("quick_mapping/resource/ResourceCreate").build()
+                    )).build()
 
     ), List.of("list.add", "list.edit", "list.delete", "user.add", "user.delete"));
 

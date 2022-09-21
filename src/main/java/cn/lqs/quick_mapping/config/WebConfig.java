@@ -20,7 +20,7 @@ public class WebConfig implements WebFluxConfigurer {
                 .allowedHeaders("*")
                 .allowedMethods("*")
                 .exposedHeaders("*")
-                .allowedOrigins("http://localhost:2800")
+                .allowedOrigins("*", "http://localhost:2800", "http://192.168.166.49:2800")
                 .allowCredentials(false);
                 // By default, this is set to 1800 seconds (30 minutes)
                 // .maxAge(Duration.ofHours(24).toSeconds());
