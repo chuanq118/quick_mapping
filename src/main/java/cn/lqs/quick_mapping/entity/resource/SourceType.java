@@ -7,7 +7,8 @@ package cn.lqs.quick_mapping.entity.resource;
 public enum SourceType {
     Mem("memory", "resource saved in memory"),
     FS("file-system", "resource saved in local file."),
-    NET("network", "resource saved in network");
+    NET("network", "resource saved in network"),
+    UNKNOWN("unknown", "not specify the type.");
     private final String name;
     private final String desc;
 

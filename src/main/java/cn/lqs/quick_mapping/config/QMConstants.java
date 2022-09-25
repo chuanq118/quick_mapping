@@ -12,4 +12,10 @@ public class QMConstants {
     public final static String DATA_DIR = Path.of(System.getProperty("user.dir"),
             "data").toAbsolutePath().toString();
 
+    public final static String DATA_FILE_DIR = Path.of(System.getProperty("user.dir"),
+            "data", "files").toAbsolutePath().toString();
+
+    public final static String DATA_INFO_DIR = Path.of(System.getProperty("user.dir"),
+            "data", "info").toAbsolutePath().toString();
+
 }

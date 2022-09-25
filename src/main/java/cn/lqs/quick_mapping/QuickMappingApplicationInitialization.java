@@ -21,6 +21,8 @@ public class QuickMappingApplicationInitialization implements ApplicationRunner 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         checkSysDirs("data");
+        checkSysDirs("data", "files");
+        checkSysDirs("data", "info");
     }
 
     private void checkSysDirs(String...dirs) {
