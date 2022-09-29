@@ -23,13 +23,13 @@ public class DefaultResourceInfoStorage implements ResourceInfoStorage{
 
     @Override
     public void serializeResInfo(ResourceItem item) throws IOException {
-        String filename = item.getFilename();
+        String filename = item.getFileKey();
         if (!StringUtils.hasText(filename)) {
             log.error("不合法的 resource item :: [{}]", item);
             return;
         }
         FileUtils.writeStringToFile(
-                Path.of(DATA_INFO_DIR, item.getFilename() + ".json").toFile(),
+                Path.of(DATA_INFO_DIR, item.getFileKey() + ".json").toFile(),
                 JSON.toJSONString(item), StandardCharsets.UTF_8);
     }
 

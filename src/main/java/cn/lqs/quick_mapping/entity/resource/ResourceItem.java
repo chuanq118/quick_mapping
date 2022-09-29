@@ -1,5 +1,7 @@
 package cn.lqs.quick_mapping.entity.resource;
 
+import com.alibaba.fastjson2.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,11 +20,11 @@ public class ResourceItem {
     /**
      * 映射到该文件的 key
      */
-    private String key;
+    private String mapKey;
     /**
      * 系统为文件生成的唯一 id
      */
-    private String filename;
+    private String fileKey;
     /**
      * 上传时,来自客户端指定的文件名
      */
@@ -34,13 +36,17 @@ public class ResourceItem {
     /**
      * 有多少路径 key 指向该资源, 如果为 0 -> 意味着需要删除
      */
-    private long refs;
+    private volatile long refs;
 
     @JsonIgnore
-    private SourceType source;
+    private SourceType sourceType;
+
+
     /**
      * 文件上传日期
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     /**
@@ -52,5 +58,15 @@ public class ResourceItem {
     public ResourceItem(String generatedFn, String sourceFn, String contentType) {
         this(null, generatedFn, sourceFn, contentType, 0,
                 SourceType.UNKNOWN, LocalDateTime.now());
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public synchronized long addAndGetRefs() {
+        refs += 1;
+        return refs;
+    }
+
+    public void setSourceType(int type) {
+
     }
 }

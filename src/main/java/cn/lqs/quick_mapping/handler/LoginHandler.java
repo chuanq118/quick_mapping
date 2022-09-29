@@ -44,9 +44,9 @@ public class LoginHandler {
                                     .meta(Meta.builder().title("账号信息").icon("el-icon-user").tag("NEW").build()).build()
                     ))
                     .build(),
-            // 上传页面
-            Menu.builder().name("upload").path("/upload").component("quick_mapping/Upload")
-                    .meta(Meta.builder().icon("sc-icon-Upload").title("上传").build()).build(),
+            // 上传页面 - 测试使用
+            // Menu.builder().name("upload").path("/upload").component("quick_mapping/Upload")
+            //         .meta(Meta.builder().icon("sc-icon-Upload").title("上传").build()).build(),
             // 资源菜单
             Menu.builder().name("resource").path("/resource")
                     .meta(Meta.builder().icon("sc-icon-Resource").title("资源").build())

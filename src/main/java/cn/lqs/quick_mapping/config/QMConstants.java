@@ -1,5 +1,6 @@
 package cn.lqs.quick_mapping.config;
 
+import java.io.File;
 import java.nio.file.Path;
 
 /**
@@ -17,5 +18,8 @@ public class QMConstants {
 
     public final static String DATA_INFO_DIR = Path.of(System.getProperty("user.dir"),
             "data", "info").toAbsolutePath().toString();
+
+    public final static File MAPPING_FILE = Path.of(System.getProperty("user.dir"),
+            "data", "mapping").toFile();
 
 }

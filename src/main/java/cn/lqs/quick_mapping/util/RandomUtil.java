@@ -20,4 +20,12 @@ public class RandomUtil {
         }
         return sb.toString();
     }
+
+    public static String ranStrOfNum(int len) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < len; i++) {
+            sb.append((RAN.nextInt(9) + 1));
+        }
+        return sb.toString();
+    }
 }

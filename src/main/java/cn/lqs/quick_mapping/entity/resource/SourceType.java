@@ -5,10 +5,10 @@ package cn.lqs.quick_mapping.entity.resource;
  * created by @lqs
  */
 public enum SourceType {
-    Mem("memory", "resource saved in memory"),
-    FS("file-system", "resource saved in local file."),
-    NET("network", "resource saved in network"),
-    UNKNOWN("unknown", "not specify the type.");
+    Mem("memory", "resource saved in memory - 1"),
+    FS("file-system", "resource saved in local file - 2"),
+    NET("network", "resource saved in network - 3"),
+    UNKNOWN("unknown", "not specify the type - other");
     private final String name;
     private final String desc;
 
@@ -23,5 +23,14 @@ public enum SourceType {
     SourceType(String name, String desc) {
         this.name = name;
         this.desc = desc;
+    }
+
+    public static SourceType create(int type) {
+        return switch (type) {
+            case 1 -> Mem;
+            case 2 -> FS;
+            case 3 -> NET;
+            default -> UNKNOWN;
+        };
     }
 }
