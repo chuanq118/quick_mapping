@@ -25,6 +25,8 @@ public class ResourceItem {
      * 系统为文件生成的唯一 id
      */
     private String fileKey;
+
+    private boolean textContent;
     /**
      * 上传时,来自客户端指定的文件名
      */
@@ -41,13 +43,14 @@ public class ResourceItem {
     @JsonIgnore
     private SourceType sourceType;
 
-
     /**
      * 文件上传日期
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
+
+    private volatile long download;
 
     /**
      * 用于接受上传文件的 temp resource item
@@ -56,8 +59,8 @@ public class ResourceItem {
      * @param contentType 文件类型
      */
     public ResourceItem(String generatedFn, String sourceFn, String contentType) {
-        this(null, generatedFn, sourceFn, contentType, 0,
-                SourceType.UNKNOWN, LocalDateTime.now());
+        this(null, generatedFn, false, sourceFn, contentType, 0,
+                SourceType.UNKNOWN, LocalDateTime.now(), 0);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -68,5 +71,9 @@ public class ResourceItem {
 
     public void setSourceType(int type) {
 
+    }
+
+    public synchronized void addDownload() {
+        this.download++;
     }
 }

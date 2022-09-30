@@ -59,6 +59,7 @@ public class ResourceHandler {
      * @return resp
      */
     public Mono<ServerResponse> createResource(ServerRequest request) {
+        final String resourceType = request.queryParam("resource-type").orElse("file");
         return ServerResponse.accepted().body(request.bodyToMono(ResourceCreatorRecord.class)
                         // 分支处理纯文本内容上传
                         .doOnEach((resourceCreatorSignal -> {
@@ -80,11 +81,11 @@ public class ResourceHandler {
                                     resourceMappingHandler.registerMappingInfo(mapKey, fileKey);
                                     log.info("为文本内容生成/指定 fileKey=[{}], mapKey=[{}]", fileKey, mapKey);
                                     ResourceItem resItem = new ResourceItem(
-                                            mapKey, fileKey, "",
+                                            mapKey, fileKey, true, "",
                                             StringUtils.hasText(resourceCreator.getContentType()) ?
                                                     resourceCreator.getContentType() : ContentTypes.TEXT_PLAIN,
                                             1, SourceType.create(resourceCreator.getSaveType()),
-                                            LocalDateTime.now());
+                                            LocalDateTime.now(), 0);
                                     // 为 resource creator 设置生成的 key 信息. 已用于下面的 map 处理验证
                                     resourceCreator.setKey(mapKey);
                                     resourceCreator.setFileKey(fileKey);
@@ -127,6 +128,10 @@ public class ResourceHandler {
                                     // 推断 / 指定 content-type
                                     if (StringUtils.hasText(resourceCreator.getContentType())) {
                                         resItem.setContentType(resourceCreator.getContentType());
+                                    }
+                                    if ("text".equalsIgnoreCase(resourceType)) {
+                                        // 标记为文本资源
+                                        resItem.setTextContent(true);
                                     }
                                     // 更新资源信息
                                     localFsService.updateResourceInfo(resItem);

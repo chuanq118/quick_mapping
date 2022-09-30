@@ -13,7 +13,6 @@ import java.nio.file.Path;
  * 2022/9/19 12:56
  * created by @lqs
  */
-
 @Slf4j
 @Component
 public class QuickMappingApplicationInitialization implements ApplicationRunner {
@@ -23,6 +22,11 @@ public class QuickMappingApplicationInitialization implements ApplicationRunner 
         checkSysDirs("data");
         checkSysDirs("data", "files");
         checkSysDirs("data", "info");
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("程序结束执行中...");
+            // todo close safely
+        }));
     }
 
     private void checkSysDirs(String...dirs) {

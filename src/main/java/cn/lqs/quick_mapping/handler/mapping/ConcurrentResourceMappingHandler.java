@@ -1,5 +1,7 @@
 package cn.lqs.quick_mapping.handler.mapping;
 
+import cn.lqs.quick_mapping.entity.resource.ResourceItem;
+import cn.lqs.quick_mapping.service.LocalFsService;
 import cn.lqs.quick_mapping.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -26,6 +28,12 @@ public class ConcurrentResourceMappingHandler implements ResourceMappingHandler,
             = new ConcurrentHashMap<>(1 << 4);
 
     private final ReadWriteLock resLock = new ReentrantReadWriteLock();
+
+    private final LocalFsService localFsService;
+
+    public ConcurrentResourceMappingHandler(LocalFsService localFsService) {
+        this.localFsService = localFsService;
+    }
 
     @Override
     public void serialize() {
@@ -57,6 +65,31 @@ public class ConcurrentResourceMappingHandler implements ResourceMappingHandler,
     public void registerMappingInfo(String mapKey, String fileKey) {
         keyMap.put(mapKey, fileKey);
         serialize();
+    }
+
+    @Override
+    public Map<String, String> getAllMappingInfo() {
+        return keyMap;
+    }
+
+    @Override
+    public ResourceItem getResourceByMapKey(String mapKey) {
+        String fileKey = keyMap.get(mapKey);
+        if (fileKey != null) {
+            return localFsService.getResourceInfo(fileKey);
+        }
+        return null;
+    }
+
+    @Override
+    public File getResourceFileByFileKey(String fileKey) {
+        return localFsService.getSavedResourceData(fileKey);
+    }
+
+    @Override
+    public void updateResourceMetrics(ResourceItem item) {
+        item.addDownload();
+        localFsService.updateResourceInfo(item);
     }
 
     @Override
