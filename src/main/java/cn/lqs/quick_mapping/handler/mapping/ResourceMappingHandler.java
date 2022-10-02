@@ -41,4 +41,10 @@ public interface ResourceMappingHandler {
 
     void updateResourceMetrics(ResourceItem item);
 
+    /**
+     * 删除指定的 mapping 映射关系
+     * @param mapKey map key
+     */
+    void deleteMappingInfo(String mapKey);
+
 }

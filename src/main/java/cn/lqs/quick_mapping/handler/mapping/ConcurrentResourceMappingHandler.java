@@ -93,6 +93,11 @@ public class ConcurrentResourceMappingHandler implements ResourceMappingHandler,
     }
 
     @Override
+    public void deleteMappingInfo(String mapKey) {
+        log.info("删除映射关系 mapKey=[{}] fileKey=[{}]", mapKey, keyMap.remove(mapKey));
+    }
+
+    @Override
     public void afterPropertiesSet() throws Exception {
         if (!MAPPING_FILE.exists()) {
             log.info("======= 未发现 mapping keys 文件. 当前系统内 map 为空 =======");

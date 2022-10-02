@@ -52,6 +52,8 @@ public class ResourceItem {
 
     private volatile long download;
 
+    private volatile boolean forbidden;
+
     /**
      * 用于接受上传文件的 temp resource item
      * @param generatedFn 系统生成文件名
@@ -61,6 +63,18 @@ public class ResourceItem {
     public ResourceItem(String generatedFn, String sourceFn, String contentType) {
         this(null, generatedFn, false, sourceFn, contentType, 0,
                 SourceType.UNKNOWN, LocalDateTime.now(), 0);
+    }
+
+    public ResourceItem(String mapKey, String fileKey, boolean textContent, String sourceFilename, String contentType, long refs, SourceType sourceType, LocalDateTime createdAt, long download) {
+        this.mapKey = mapKey;
+        this.fileKey = fileKey;
+        this.textContent = textContent;
+        this.sourceFilename = sourceFilename;
+        this.contentType = contentType;
+        this.refs = refs;
+        this.sourceType = sourceType;
+        this.createdAt = createdAt;
+        this.download = download;
     }
 
     @SuppressWarnings("UnusedReturnValue")

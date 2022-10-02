@@ -3,9 +3,11 @@ package cn.lqs.quick_mapping.handler;
 import cn.lqs.quick_mapping.entity.UniResponse;
 import cn.lqs.quick_mapping.entity.resource.ResourceItem;
 import cn.lqs.quick_mapping.handler.mapping.ResourceMappingHandler;
+import cn.lqs.quick_mapping.service.ResourceManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,9 +29,11 @@ import java.nio.charset.StandardCharsets;
 public class ResourceController {
 
     private final ResourceMappingHandler resourceMappingHandler;
+    private final ResourceManager resourceManager;
 
-    public ResourceController(ResourceMappingHandler resourceMappingHandler) {
+    public ResourceController(ResourceMappingHandler resourceMappingHandler, ResourceManager resourceManager) {
         this.resourceMappingHandler = resourceMappingHandler;
+        this.resourceManager = resourceManager;
     }
 
     /**
@@ -44,8 +48,16 @@ public class ResourceController {
         ResourceItem resItem = resourceMappingHandler.getResourceByMapKey(mapKey);
         if (resItem == null) {
             log.warn("无法通过 map key [{}] 获取资源", mapKey);
-            return ServerResponse.ok().bodyValue(
+            return ServerResponse.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(
                     new UniResponse<>(404, "没有找到对应的资源", null));
+        }
+        // 判断资源是否被禁用
+        if (resItem.isForbidden()) {
+            return ServerResponse.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(new UniResponse<>(403, "禁止访问", null));
         }
         File resF = resourceMappingHandler.getResourceFileByFileKey(resItem.getFileKey());
         if (!resF.exists()) {
@@ -99,5 +111,50 @@ public class ResourceController {
                 .bodyValue(resourceMappingHandler.getAllMappingInfo());
     }
 
+    /**
+     * 返回系统中所有的资源信息
+     * @param request 请求
+     * @return resource item 列表
+     */
+    public Mono<ServerResponse> listAllResourceInfo(ServerRequest request) {
+        log.info("从磁盘中读取所有资源信息...");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(resourceManager.listAll());
+    }
 
+    /**
+     * 更改资源访问转态
+     * @param request 需要携带两个参数 available, file-key
+     * @return UNIResponse
+     */
+    public Mono<ServerResponse> setResourceAvailable(ServerRequest request) {
+        String bool = request.queryParam("available").orElse("true");
+        String fileKey = request.queryParam("file-key").orElse(null);
+        if (fileKey == null) {
+            return ServerResponse.status(HttpStatus.FORBIDDEN).build();
+        }
+        boolean isAvailable = "true".equalsIgnoreCase(bool);
+        resourceManager.setResourceAvailable(fileKey, isAvailable);
+        log.info("更新资源[{}]可访问转态为[{}]", fileKey, isAvailable);
+        return ServerResponse.ok()
+                .bodyValue(new UniResponse<>(200, "状态更改成功", isAvailable));
+    }
+
+    /**
+     * 删除指定的资源数据
+     * @param request 需要携带 map-key 和 file-key 两个参数
+     * @return 资源删除结果
+     */
+    public Mono<ServerResponse> deleteResource(ServerRequest request) {
+        String fileKey = request.queryParam("file-key").orElse(null);
+        String mapKey = request.queryParam("map-key").orElse(null);
+        if (fileKey == null || mapKey == null) {
+            return ServerResponse.status(HttpStatus.FORBIDDEN).bodyValue("操作不合法");
+        }
+        resourceMappingHandler.deleteMappingInfo(mapKey);
+        boolean dataCleared = resourceManager.deleteResource(fileKey);
+        return ServerResponse.ok()
+                .bodyValue(new UniResponse<>(200, "已执行删除资源", dataCleared));
+    }
 }

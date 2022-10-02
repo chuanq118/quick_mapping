@@ -13,8 +13,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import static cn.lqs.quick_mapping.config.QMConstants.DATA_FILE_DIR;
+import static cn.lqs.quick_mapping.config.QMConstants.DATA_INFO_DIR;
 
 /**
  * 2022/9/27 14:56
@@ -42,7 +45,8 @@ public class DefaultLocalFsService implements LocalFsService{
 
     @Override
     public File getSavedResourceInfo(String fileKey) {
-        return Path.of(QMConstants.DATA_INFO_DIR, fileKey + ".json").toFile();
+        fileKey = fileKey.endsWith(".json") ? fileKey : fileKey + ".json";
+        return Path.of(QMConstants.DATA_INFO_DIR, fileKey).toFile();
     }
 
     @Override
@@ -76,6 +80,16 @@ public class DefaultLocalFsService implements LocalFsService{
         FileUtils.writeStringToFile(Path.of(DATA_FILE_DIR, fileKey).toFile(),
                 text, StandardCharsets.UTF_8);
         return fileKey;
+    }
+
+    @Override
+    public Stream<String> allFileKeys() {
+        File[] files = new File(DATA_INFO_DIR).listFiles();
+        if (files == null) {
+            return Stream.empty();
+        }
+        return Arrays.stream(files)
+                .map(File::getName);
     }
 
 }

@@ -46,14 +46,21 @@ public class RouterConfig {
                 .GET(prefix + "/res/{map-key}", resourceController::resourceResponse)
                 // 获取所有 mapping
                 .GET(prefix + "/mappings", resourceController::listAllMappings)
+                // 获取所有的资源信息
+                .GET(prefix + "/resource/all", resourceController::listAllResourceInfo)
+                // 设置资源访问状态
+                .GET(prefix + "/resource/available", resourceController::setResourceAvailable)
+                // 删除指定资源
+                .GET(prefix + "/resource/del", resourceController::deleteResource)
                 // 登录获取 token
                 .POST(prefix + "/token", RequestPredicates.accept(MediaType.APPLICATION_JSON), loginHandler::getToken)
                 // 创建新资源
                 .POST(prefix + "/resource/create", RequestPredicates.accept(MediaType.APPLICATION_JSON), resourceHandler::createResource)
                 // 上传接口
                 .POST(prefix + "/upload", RequestPredicates.accept(MediaType.MULTIPART_FORM_DATA), uploadController::upload)
-                // 获取路由
+                // 获取所有原始路由
                 .GET(prefix + "/system/menu/admin", loginHandler::getAdminMenuList)
+                // 获取用户路由
                 .GET(prefix + "/system/menu/user", loginHandler::getUserMenuList)
                 // 获取系统版本
                 .GET(prefix + "/system/version", systemController::currentVersion)

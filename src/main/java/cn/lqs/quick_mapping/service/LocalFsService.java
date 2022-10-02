@@ -4,6 +4,7 @@ import cn.lqs.quick_mapping.entity.resource.ResourceItem;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.stream.Stream;
 
 /**
  * 2022/9/27 14:49
@@ -56,4 +57,9 @@ public interface LocalFsService {
      */
     String saveTextToFile(String text) throws IOException;
 
+    /**
+     *
+     * @return 所有的 file key
+     */
+    Stream<String> allFileKeys();
 }
