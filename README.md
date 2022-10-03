@@ -7,3 +7,9 @@
 - log4j2(日志)
 - Project Reactor
 
+#### Demo
+[部署测试链接](https://lqservice.cn/resource)
+
+- 创建资源
+<img src="./docs/create_resource.png" alt="演示图片">  
+<img src="./docs/create_text_resource.png" alt="演示图片">
