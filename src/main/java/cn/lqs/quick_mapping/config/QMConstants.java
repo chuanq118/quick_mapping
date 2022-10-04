@@ -22,4 +22,5 @@ public class QMConstants {
     public final static File MAPPING_FILE = Path.of(System.getProperty("user.dir"),
             "data", "mapping").toFile();
 
+
 }

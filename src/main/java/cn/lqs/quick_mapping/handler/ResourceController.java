@@ -3,6 +3,7 @@ package cn.lqs.quick_mapping.handler;
 import cn.lqs.quick_mapping.entity.UniResponse;
 import cn.lqs.quick_mapping.entity.resource.ResourceItem;
 import cn.lqs.quick_mapping.handler.mapping.ResourceMappingHandler;
+import cn.lqs.quick_mapping.render.ViewRenderSelector;
 import cn.lqs.quick_mapping.service.ResourceManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Mono;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 /**
  * 2022/9/30 10:21
@@ -43,7 +45,8 @@ public class ResourceController {
      */
     public Mono<ServerResponse> resourceResponse(ServerRequest request) {
         String mapKey = request.pathVariable("map-key");
-        String respType = request.queryParam("type").orElse("view");
+        Optional<String> view = request.queryParam("view");
+
         log.info("读取 map key 为 [{}]", mapKey);
         ResourceItem resItem = resourceMappingHandler.getResourceByMapKey(mapKey);
         if (resItem == null) {
@@ -59,6 +62,15 @@ public class ResourceController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(new UniResponse<>(403, "禁止访问", null));
         }
+
+        // 构建渲染页面
+        if (view.isPresent()) {
+            log.info("构建资源渲染页面...");
+            return ViewRenderSelector
+                    .autoSelect(resItem.getContentType(), resItem.getMapKey())
+                    .render();
+        }
+
         File resF = resourceMappingHandler.getResourceFileByFileKey(resItem.getFileKey());
         if (!resF.exists()) {
             log.info("资源文件不存在 -> [{}]", resF.getAbsolutePath());
@@ -71,10 +83,6 @@ public class ResourceController {
         if (StringUtils.hasText(resItem.getSourceFilename()) && !resItem.isTextContent()) {
             bodyBuilder = ServerResponse.ok()
                     .header("Content-Type", resItem.getContentType());
-            if (!respType.equalsIgnoreCase("view")) {
-                log.info("添加文件 attachment 附着文件名称");
-                bodyBuilder.header("Content-Disposition", "attachment;filename=" + resItem.getSourceFilename());
-            }
         } else {
             log.info("资源指定编码为 utf-8");
             bodyBuilder = ServerResponse.ok()
@@ -95,9 +103,23 @@ public class ResourceController {
                         .bodyValue(new UniResponse<>(500, "读取资源文本文件发生错误", null));
             }
         }
-        log.info("返回文件资源...");
-        return bodyBuilder.body(BodyInserters.fromResource(new FileSystemResource(resF)));
 
+        log.info("返回文件资源...");
+        // 控制返回类型
+        // switch (respType) {
+        //     case "download" -> {
+        //         log.info("添加文件 attachment 附着文件名称");
+        //         return bodyBuilder.header("Content-Disposition", "attachment;filename=" + resItem.getSourceFilename())
+        //                 .body(BodyInserters.fromResource(new FileSystemResource(resF)));
+        //     }
+        //     case "video" -> {
+        //         log.info("渲染视频页面");
+        //         return bodyBuilder.header("Content-Type", ContentTypes.TEXT_HTML + "; charset=utf-8")
+        //                 .bodyValue(HtmlTemplate.renderVideoPage("在线播放", "http://localhost:8088/mapping/res/" + resItem.getMapKey()));
+        //     }
+        // }
+
+        return bodyBuilder.body(BodyInserters.fromResource(new FileSystemResource(resF)));
     }
 
     /**
