@@ -7,9 +7,14 @@
         <!--这个输出控制台的配置-->
         <Console name="STDOUT" target="SYSTEM_OUT">
             <!--输出日志的格式-->
-            <PatternLayout pattern="${STD_PAT}" />
+            <PatternLayout>
+                <MarkerPatternSelector defaultPattern="${STD_PAT}">
+                    <PatternMatch key="PLAIN" pattern="%-5level| %msg%n"/>
+                </MarkerPatternSelector>
+            </PatternLayout>
         </Console>
     </Appenders>
+
     <Loggers>
         <Root level="info">
             <AppenderRef ref="STDOUT"/>

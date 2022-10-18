@@ -1,11 +1,13 @@
 package cn.lqs.quick_mapping.handler;
 
 import cn.lqs.quick_mapping.entity.UniResponse;
+import cn.lqs.quick_mapping.entity.request.UserRegisterRequestBody;
 import cn.lqs.quick_mapping.entity.route.Menu;
 import cn.lqs.quick_mapping.entity.route.Meta;
 import cn.lqs.quick_mapping.entity.route.UserRoute;
 import cn.lqs.quick_mapping.entity.user.UserInfo;
 import cn.lqs.quick_mapping.entity.user.UserTokenInfo;
+import cn.lqs.quick_mapping.service.UserService;
 import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +22,12 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
+
+import static cn.lqs.quick_mapping.config.QMConstants.DATA_DIR;
 
 /**
  * 2022/9/11 19:49
@@ -37,15 +44,15 @@ public class LoginHandler implements InitializingBean {
 
     @Value("${docs.api}")
     private String apiUri = "";
-    @Value("${docs.github}")
-    private String githubUri = "";
+    @Value("${docs.yuque}")
+    private String yuQueUri = "";
 
     public void setApiUri(String apiUri) {
         this.apiUri = apiUri;
     }
 
     public void setGithubUri(String githubUri) {
-        this.githubUri = githubUri;
+        this.yuQueUri = githubUri;
     }
 
     private String ADMIN_MENUS;
@@ -59,6 +66,7 @@ public class LoginHandler implements InitializingBean {
 
     /**
      * 此处写死为管理员信息
+     *
      * @param request req
      * @return 默认的管理员信息
      */
@@ -70,6 +78,7 @@ public class LoginHandler implements InitializingBean {
 
     /**
      * 返回所有菜单
+     *
      * @param request req
      * @return 所有的菜单路径
      */
@@ -87,6 +96,7 @@ public class LoginHandler implements InitializingBean {
 
     /**
      * 返回自定义项目路径
+     *
      * @param request req
      * @return 自定义路径
      */
@@ -104,9 +114,61 @@ public class LoginHandler implements InitializingBean {
         return ServerResponse.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 
+    /**
+     * 查询是否该用户已经存在
+     *
+     * @param request req
+     * @return true / false
+     */
+    public Mono<ServerResponse> checkUserExists(ServerRequest request) {
+        Optional<String> usernameOp = request.queryParam("username");
+        if (usernameOp.isEmpty()) {
+            return ServerResponse.status(HttpStatus.FORBIDDEN).build();
+        }
+        String username = usernameOp.get();
+        log.info("查询用户[{}]是否存在", username);
+        return ServerResponse.ok()
+                .bodyValue(new UniResponse<>(200, "ok",
+                        Files.isDirectory(Path.of(DATA_DIR, username))));
+    }
+
+    /**
+     * 注册新用户
+     *
+     * @param request 请求体需要映射为 {@link UserRegisterRequestBody}
+     * @return 成功注册则返回用户信息
+     */
+    public Mono<ServerResponse> registerNewUser(ServerRequest request) {
+        return ServerResponse.ok()
+                .body(request.bodyToMono(UserRegisterRequestBody.class)
+                                .log()
+                                .map(userRegisterRequestBody -> {
+                                    if (userRegisterRequestBody.getUsername().length() < UserService.MAX_USERNAME_LENGTH
+                                            && userRegisterRequestBody.getPassword().length() < UserService.MAX_PASSWORD_LENGTH) {
+                                        // todo save user info and more check
+                                        return new UniResponse<>(200, "success", userRegisterRequestBody);
+                                    }
+                                    return new UniResponse<>(403, "服务器拒绝创建", null);
+                                }), UniResponse.class);
+
+        // return request.bodyToMono(UserRegisterRequestBody.class)
+        //         .log()
+        //         .mapNotNull(userRegisterRequestBody -> {
+        //             if (userRegisterRequestBody.getUsername().length() < UserService.MAX_USERNAME_LENGTH
+        //             && userRegisterRequestBody.getPassword().length() < UserService.MAX_PASSWORD_LENGTH) {
+        //
+        //                 return ServerResponse.ok().bodyValue(new UniResponse<>(200, "success", userRegisterRequestBody)).block();
+        //             }
+        //             return ServerResponse.status(HttpStatus.FORBIDDEN)
+        //                     .bodyValue(new UniResponse<>(403, "非法请求", null)).take(Duration.ofSeconds(1)).block();
+        //         });
+
+
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
-        log.info("外链配置\n\t\tapiUrl=[{}]\n\t\tgithubUri=[{}]", apiUri, githubUri);
+        log.info("外链配置\n\t\tapiUrl=[{}]\n\t\tgithubUri=[{}]", apiUri, yuQueUri);
         USER_ROUTE = new UserRoute(List.of(
                 // home 菜单
                 Menu.builder().name("home").path("/home")
@@ -144,8 +206,8 @@ public class LoginHandler implements InitializingBean {
                                 Menu.builder().path(apiUri).name("api")
                                         .meta(Meta.builder().icon("sc-icon-Document").title("API 参考").type("iframe").build()).build(),
                                 // GITHUB
-                                Menu.builder().path(githubUri).name("github")
-                                        .meta(Meta.builder().icon("sc-icon-Document").title("GitHub 仓库").type("iframe").build()).build()
+                                Menu.builder().path(yuQueUri).name("yuque")
+                                        .meta(Meta.builder().icon("sc-icon-Document").title("项目文档").type("iframe").build()).build()
                         )).build()
         ), List.of("list.add", "list.edit", "list.delete", "user.add", "user.delete"));
         log.info("初始化用户路由数据成功.");

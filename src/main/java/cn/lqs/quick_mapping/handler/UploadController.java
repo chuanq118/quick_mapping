@@ -49,6 +49,7 @@ public class UploadController {
      */
     public Mono<ServerResponse> upload(ServerRequest request) {
         log.info("accept upload request...");
+        // TODO 优化文件上传接口
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request.multipartData().flatMap((map) -> {
