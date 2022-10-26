@@ -10,8 +10,8 @@ import cn.lqs.quick_mapping.handler.mapping.ResourceMappingHandler;
 import cn.lqs.quick_mapping.service.LocalFsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -25,7 +25,7 @@ import java.util.Optional;
  * created by @lqs
  */
 @Slf4j
-@RestController
+@Component
 public class ResourceHandler {
 
     private final LocalFsService localFsService;

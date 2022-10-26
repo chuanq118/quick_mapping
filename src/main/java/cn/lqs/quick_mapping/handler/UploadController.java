@@ -5,13 +5,14 @@ import cn.lqs.quick_mapping.entity.resource.ResourceItem;
 import cn.lqs.quick_mapping.entity.response.UploadedResource;
 import cn.lqs.quick_mapping.storage.ResourceInfoStorage;
 import cn.lqs.quick_mapping.util.DateTimeUtil;
+import cn.lqs.quick_mapping.util.LogMarkers;
 import cn.lqs.quick_mapping.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -29,7 +30,7 @@ import static cn.lqs.quick_mapping.config.QMConstants.DATA_FILE_DIR;
  * created by @lqs
  */
 @Slf4j
-@RestController
+@Component
 public class UploadController {
 
     private final ResourceInfoStorage resourceInfoStorage;
@@ -45,7 +46,7 @@ public class UploadController {
      * @return resp
      */
     public Mono<ServerResponse> upload(ServerRequest request) {
-        log.info("accept upload file request...");
+        log.info(LogMarkers.PLAIN, "accept upload file request...");
         return request.multipartData().flatMap((map) -> {
             Part part = map.getFirst("file");
             if (part == null) {

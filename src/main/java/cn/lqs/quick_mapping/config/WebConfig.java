@@ -10,7 +10,7 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
  * 2022/9/9 18:14
  * created by @lqs
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableWebFlux
 public class WebConfig implements WebFluxConfigurer {
 

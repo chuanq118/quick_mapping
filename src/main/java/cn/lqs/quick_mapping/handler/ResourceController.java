@@ -10,8 +10,8 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -27,7 +27,7 @@ import java.util.Optional;
  * created by @lqs
  */
 @Slf4j
-@RestController
+@Component
 public class ResourceController {
 
     private final ResourceMappingHandler resourceMappingHandler;

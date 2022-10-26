@@ -20,10 +20,15 @@ public class UserRegisterRequestBody implements Serializable {
 
     private String username;
     private String password;
+    private String repassword;
+
+    private boolean agree;
 
     private String phone;
     private String email;
 
-    private boolean admin;
-    private List<String> roles;
+    private String userType;
+    private List<String> open;
+
+    private long createdTs;
 }

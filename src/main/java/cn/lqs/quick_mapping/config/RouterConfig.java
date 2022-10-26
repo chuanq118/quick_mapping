@@ -20,7 +20,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 public class RouterConfig {
 
     private final IndexHandler indexHandler;
-    private final LoginHandler loginHandler;
+    private final UserHandler userHandler;
 
     private final ResourceHandler resourceHandler;
     private final SystemController systemController;
@@ -28,9 +28,9 @@ public class RouterConfig {
     private final ResourceController resourceController;
 
     @Autowired
-    public RouterConfig(IndexHandler indexHandler, LoginHandler loginHandler, ResourceHandler resourceHandler, SystemController systemController, UploadController uploadController, ResourceController resourceController) {
+    public RouterConfig(IndexHandler indexHandler, UserHandler userHandler, ResourceHandler resourceHandler, SystemController systemController, UploadController uploadController, ResourceController resourceController) {
         this.indexHandler = indexHandler;
-        this.loginHandler = loginHandler;
+        this.userHandler = userHandler;
         this.resourceHandler = resourceHandler;
         this.systemController = systemController;
         this.uploadController = uploadController;
@@ -53,15 +53,15 @@ public class RouterConfig {
                 // 删除指定资源
                 .GET(prefix + "/resource/del", resourceController::deleteResource)
                 // 登录获取 token
-                .POST(prefix + "/token", RequestPredicates.accept(MediaType.APPLICATION_JSON), loginHandler::getToken)
+                .POST(prefix + "/token", RequestPredicates.accept(MediaType.APPLICATION_JSON), userHandler::getToken)
                 // 创建新资源
                 .POST(prefix + "/resource/create", RequestPredicates.accept(MediaType.APPLICATION_JSON), resourceHandler::createResource)
                 // 上传接口
                 .POST(prefix + "/upload", RequestPredicates.accept(MediaType.MULTIPART_FORM_DATA), uploadController::upload)
                 // 获取所有原始路由
-                .GET(prefix + "/system/menu/admin", loginHandler::getAdminMenuList)
+                .GET(prefix + "/system/menu/admin", userHandler::getAdminMenuList)
                 // 获取用户路由
-                .GET(prefix + "/system/menu/user", loginHandler::getUserMenuList)
+                .GET(prefix + "/system/menu/user", userHandler::getUserMenuList)
                 // 获取系统版本
                 .GET(prefix + "/system/version", systemController::currentVersion)
                 // 查询返回类型

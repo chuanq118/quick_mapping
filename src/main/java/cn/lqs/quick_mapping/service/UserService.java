@@ -1,6 +1,6 @@
 package cn.lqs.quick_mapping.service;
 
-import cn.lqs.quick_mapping.entity.request.UserRegisterRequestBody;
+import cn.lqs.quick_mapping.entity.user.UserInfo;
 
 /**
  * @author @lqs
@@ -22,7 +22,15 @@ public interface UserService {
      * 存储用户信息到本地服务器
      * @param user 用户信息
      */
-    void saveUserInfo(UserRegisterRequestBody user);
+    boolean saveUserInfo(UserInfo user);
+
+    /**
+     * 判断用户名是否以及存在
+     * @param username 用户名
+     * @return true / false
+     */
+    boolean isUserExists(String username);
+
 
 
 }

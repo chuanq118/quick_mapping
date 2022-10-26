@@ -8,6 +8,7 @@ import cn.lqs.quick_mapping.entity.route.UserRoute;
 import cn.lqs.quick_mapping.entity.user.UserInfo;
 import cn.lqs.quick_mapping.entity.user.UserTokenInfo;
 import cn.lqs.quick_mapping.service.UserService;
+import cn.lqs.quick_mapping.util.PatternUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -34,13 +35,14 @@ import static cn.lqs.quick_mapping.config.QMConstants.DATA_DIR;
  * created by @lqs
  */
 @Slf4j
-@RestController
-public class LoginHandler implements InitializingBean {
+@Component
+public class UserHandler implements InitializingBean {
 
     private final static UserInfo ADMIN = new UserInfo(0, List.of("SA", "admin", "Auditor"), 1, "Administrator");
     private final static String ADMIN_TOKEN = "QUICK_MAPPING.Administrator.Auth";
 
     private final ObjectMapper objectMapper;
+    private final UserService userService;
 
     @Value("${docs.api}")
     private String apiUri = "";
@@ -60,8 +62,9 @@ public class LoginHandler implements InitializingBean {
     private UserRoute USER_ROUTE;
 
     @Autowired
-    public LoginHandler(ObjectMapper objectMapper) {
+    public UserHandler(ObjectMapper objectMapper, UserService userService) {
         this.objectMapper = objectMapper;
+        this.userService = userService;
     }
 
     /**
@@ -86,13 +89,14 @@ public class LoginHandler implements InitializingBean {
         try {
             return ServerResponse.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(
-                            objectMapper.writeValueAsString(new UniResponse<>(200, "", JSONObject.parseObject(ADMIN_MENUS))));
+                    .bodyValue(objectMapper.writeValueAsString(new UniResponse<>(200,
+                            "", JSONObject.parseObject(ADMIN_MENUS))));
         } catch (JsonProcessingException e) {
             log.error("解析为 JSON 字符串发生错误", e);
         }
         return ServerResponse.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
+
 
     /**
      * 返回自定义项目路径
@@ -104,10 +108,7 @@ public class LoginHandler implements InitializingBean {
         try {
             return ServerResponse.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(
-                            objectMapper.writeValueAsString(
-                                    new UniResponse<>(200, "", USER_ROUTE)
-                            ));
+                    .bodyValue(objectMapper.writeValueAsString(new UniResponse<>(200, "", USER_ROUTE)));
         } catch (JsonProcessingException e) {
             log.error("解析为 JSON 字符串发生错误", e);
         }
@@ -143,27 +144,32 @@ public class LoginHandler implements InitializingBean {
                 .body(request.bodyToMono(UserRegisterRequestBody.class)
                                 .log()
                                 .map(userRegisterRequestBody -> {
-                                    if (userRegisterRequestBody.getUsername().length() < UserService.MAX_USERNAME_LENGTH
-                                            && userRegisterRequestBody.getPassword().length() < UserService.MAX_PASSWORD_LENGTH) {
-                                        // todo save user info and more check
-                                        return new UniResponse<>(200, "success", userRegisterRequestBody);
+                                    String errMsg = "发生了某种错误";
+                                    if (!(userRegisterRequestBody.getUsername().length() < UserService.MAX_USERNAME_LENGTH
+                                            && userRegisterRequestBody.getPassword().length() < UserService.MAX_PASSWORD_LENGTH)) {
+                                        errMsg = "username/password 长度超限.";
+                                    }else if (!userRegisterRequestBody.isAgree()) {
+                                        errMsg = "需要同意相关协议.";
+                                    }else if (!userRegisterRequestBody.getRepassword().equals(userRegisterRequestBody.getPassword())) {
+                                        errMsg = "两次密码不一致.";
+                                    }else if (!PatternUtil.checkUsername(userRegisterRequestBody.getUsername())){
+                                        errMsg = "用户名格式不合法.";
+                                    }else if (userService.isUserExists(userRegisterRequestBody.getUsername())) {
+                                        errMsg = "用户名已存在.";
+                                    }else {
+                                        // 处理创建用户相关操作
+                                        try {
+                                            UserInfo userInfo = UserInfo.createFromUserRegisterRequestBody(userRegisterRequestBody);
+                                            if (userService.saveUserInfo(userInfo)) {
+                                                return new UniResponse<>(200, "创建成功", userInfo);
+                                            }
+                                        } catch (Exception e) {
+                                            log.error("最终创建用户操作失败", e);
+                                            return new UniResponse<>(500, "服务器发生错误", "创建用户失败");
+                                        }
                                     }
-                                    return new UniResponse<>(403, "服务器拒绝创建", null);
+                                    return new UniResponse<>(403, "服务器拒绝创建", errMsg);
                                 }), UniResponse.class);
-
-        // return request.bodyToMono(UserRegisterRequestBody.class)
-        //         .log()
-        //         .mapNotNull(userRegisterRequestBody -> {
-        //             if (userRegisterRequestBody.getUsername().length() < UserService.MAX_USERNAME_LENGTH
-        //             && userRegisterRequestBody.getPassword().length() < UserService.MAX_PASSWORD_LENGTH) {
-        //
-        //                 return ServerResponse.ok().bodyValue(new UniResponse<>(200, "success", userRegisterRequestBody)).block();
-        //             }
-        //             return ServerResponse.status(HttpStatus.FORBIDDEN)
-        //                     .bodyValue(new UniResponse<>(403, "非法请求", null)).take(Duration.ofSeconds(1)).block();
-        //         });
-
-
     }
 
     @Override
