@@ -18,6 +18,8 @@ import java.util.List;
 @Builder
 public class UserRegisterRequestBody implements Serializable {
 
+    
+
     private String username;
     private String password;
     private String repassword;
@@ -30,5 +32,4 @@ public class UserRegisterRequestBody implements Serializable {
     private String userType;
     private List<String> open;
 
-    private long createdTs;
 }

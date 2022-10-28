@@ -49,4 +49,9 @@ public class UserTokenManager implements TokenManager<UserTokenNote>{
         return null;
     }
 
+    @Override
+    public boolean validToken(String token) {
+        return parseToken(token) != null;
+    }
+
 }

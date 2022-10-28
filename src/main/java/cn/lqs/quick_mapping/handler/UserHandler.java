@@ -1,13 +1,19 @@
 package cn.lqs.quick_mapping.handler;
 
 import cn.lqs.quick_mapping.entity.UniResponse;
+import cn.lqs.quick_mapping.entity.request.LoginFormRequestBody;
 import cn.lqs.quick_mapping.entity.request.UserRegisterRequestBody;
+import cn.lqs.quick_mapping.entity.response.UserTokenNote;
 import cn.lqs.quick_mapping.entity.route.Menu;
 import cn.lqs.quick_mapping.entity.route.Meta;
 import cn.lqs.quick_mapping.entity.route.UserRoute;
 import cn.lqs.quick_mapping.entity.user.UserInfo;
 import cn.lqs.quick_mapping.entity.user.UserTokenInfo;
+import cn.lqs.quick_mapping.execption.UserBadCredentialsException;
+import cn.lqs.quick_mapping.execption.UserNotExistsException;
 import cn.lqs.quick_mapping.service.UserService;
+import cn.lqs.quick_mapping.service.manager.TokenManager;
+import cn.lqs.quick_mapping.util.LogMarkers;
 import cn.lqs.quick_mapping.util.PatternUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,12 +29,9 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static cn.lqs.quick_mapping.config.QMConstants.DATA_DIR;
 
 /**
  * 2022/9/11 19:49
@@ -43,6 +46,8 @@ public class UserHandler implements InitializingBean {
 
     private final ObjectMapper objectMapper;
     private final UserService userService;
+
+    private final TokenManager<UserTokenNote> tokenManager;
 
     @Value("${docs.api}")
     private String apiUri = "";
@@ -62,9 +67,10 @@ public class UserHandler implements InitializingBean {
     private UserRoute USER_ROUTE;
 
     @Autowired
-    public UserHandler(ObjectMapper objectMapper, UserService userService) {
+    public UserHandler(ObjectMapper objectMapper, UserService userService, TokenManager<UserTokenNote> tokenManager) {
         this.objectMapper = objectMapper;
         this.userService = userService;
+        this.tokenManager = tokenManager;
     }
 
     /**
@@ -73,10 +79,30 @@ public class UserHandler implements InitializingBean {
      * @param request req
      * @return 默认的管理员信息
      */
-    public Mono<ServerResponse> getToken(ServerRequest request) {
-        return ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new UniResponse<>(200, "ok", new UserTokenInfo(ADMIN_TOKEN, ADMIN)));
+    public Mono<ServerResponse> loginToken(ServerRequest request) {
+        return request.bodyToMono(LoginFormRequestBody.class)
+                .flatMap(loginFormRequestBody -> {
+                    // 获取用户名密码进行验证
+                    String username = loginFormRequestBody.getUsername();
+                    if (username == null) {
+                        return ServerResponse.status(HttpStatus.FORBIDDEN).bodyValue("非法操作");
+                    }
+                    log.info("验证用户登录, form=[{}]", loginFormRequestBody);
+                    UserInfo userInfo = userService.findUserInfoByUsername(username);
+                    if (userInfo == null) {
+                        return Mono.error(new UserNotExistsException(username));
+                    }
+                    if (!userInfo.getPassword().equals(loginFormRequestBody.getPassword())) {
+                        return Mono.error(new UserBadCredentialsException("密码错误"));
+                    }
+                    String token = tokenManager.generate(new UserTokenNote(username, LocalDateTime.now()));
+                    return ServerResponse.ok()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(new UserTokenInfo(token, userInfo));
+                })
+                .onErrorResume(throwable -> ServerResponse.status(HttpStatus.FORBIDDEN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(new UniResponse<>(403, HttpStatus.FORBIDDEN.name(), throwable.getMessage())));
     }
 
     /**
@@ -130,7 +156,7 @@ public class UserHandler implements InitializingBean {
         log.info("查询用户[{}]是否存在", username);
         return ServerResponse.ok()
                 .bodyValue(new UniResponse<>(200, "ok",
-                        Files.isDirectory(Path.of(DATA_DIR, username))));
+                        userService.isUserExists(username)));
     }
 
     /**
@@ -140,6 +166,7 @@ public class UserHandler implements InitializingBean {
      * @return 成功注册则返回用户信息
      */
     public Mono<ServerResponse> registerNewUser(ServerRequest request) {
+        log.info(LogMarkers.PLAIN, "执行创建新用户...");
         return ServerResponse.ok()
                 .body(request.bodyToMono(UserRegisterRequestBody.class)
                                 .log()
@@ -156,11 +183,17 @@ public class UserHandler implements InitializingBean {
                                         errMsg = "用户名格式不合法.";
                                     }else if (userService.isUserExists(userRegisterRequestBody.getUsername())) {
                                         errMsg = "用户名已存在.";
+                                    }else if (!PatternUtil.checkEmail(userRegisterRequestBody.getEmail())){
+                                        errMsg = "邮箱不合法.";
+                                    }else if (!PatternUtil.checkPhone(userRegisterRequestBody.getPhone())){
+                                        errMsg = "手机号码不合法.";
                                     }else {
                                         // 处理创建用户相关操作
                                         try {
+                                            log.info(LogMarkers.PLAIN, "用户创建相关参数合法,将在服务器端实例化用户信息. USER[{}]", userRegisterRequestBody.getUsername());
                                             UserInfo userInfo = UserInfo.createFromUserRegisterRequestBody(userRegisterRequestBody);
                                             if (userService.saveUserInfo(userInfo)) {
+                                                log.info(LogMarkers.PLAIN, "新用户 [{}] 创建成功", userInfo.getUserName());
                                                 return new UniResponse<>(200, "创建成功", userInfo);
                                             }
                                         } catch (Exception e) {

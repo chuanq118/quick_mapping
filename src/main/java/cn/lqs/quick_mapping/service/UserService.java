@@ -31,6 +31,11 @@ public interface UserService {
      */
     boolean isUserExists(String username);
 
-
+    /**
+     * 通过用户名获取用户信息
+     * @param username 用户名
+     * @return {@link UserInfo}
+     */
+    UserInfo findUserInfoByUsername(String username);
 
 }

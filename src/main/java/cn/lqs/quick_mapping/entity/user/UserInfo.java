@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,7 +16,10 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInfo {
+public class UserInfo implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private int dashboard;
     private List<String> role;
@@ -37,7 +42,10 @@ public class UserInfo {
 
 
     public static UserInfo createFromUserRegisterRequestBody(UserRegisterRequestBody userRegister) {
-        return new UserInfo(0, userRegister.getOpen(), userRegister.getCreatedTs(),
+        if (userRegister.getUserType() == null) {
+            userRegister.setUserType(UserTypes.NORMAL.getTag());
+        }
+        return new UserInfo(0, userRegister.getOpen(), System.currentTimeMillis(),
                 userRegister.getUsername(), userRegister.getPassword(), userRegister.getEmail(),
                 userRegister.getPhone(), userRegister.getUserType());
     }

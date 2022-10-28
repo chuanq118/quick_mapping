@@ -20,4 +20,10 @@ public interface TokenManager<T> {
      */
     T parseToken(String token);
 
+    /**
+     * 验证给与的 token 字符串是否合法
+     * @param token 字符串
+     * @return true - 合法
+     */
+    boolean validToken(String token);
 }
