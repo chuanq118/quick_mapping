@@ -2,8 +2,8 @@ package cn.lqs.quick_mapping.service;
 
 import cn.lqs.quick_mapping.config.QMConstants;
 import cn.lqs.quick_mapping.entity.resource.ResourceItem;
-import cn.lqs.quick_mapping.util.DateTimeUtil;
-import cn.lqs.quick_mapping.util.RandomUtil;
+import cn.lqs.quick_mapping.infrastructure.util.DateTimeUtil;
+import cn.lqs.quick_mapping.infrastructure.util.RandomUtil;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;

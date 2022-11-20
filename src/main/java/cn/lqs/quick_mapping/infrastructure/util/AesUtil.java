@@ -1,4 +1,4 @@
-package cn.lqs.quick_mapping.util;
+package cn.lqs.quick_mapping.infrastructure.util;
 
 
 import javax.crypto.*;

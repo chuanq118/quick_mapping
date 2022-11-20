@@ -1,4 +1,4 @@
-package cn.lqs.quick_mapping.execption;
+package cn.lqs.quick_mapping.infrastructure.execption;
 
 /**
  * @author @lqs

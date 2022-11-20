@@ -1,7 +1,7 @@
 package cn.lqs.quick_mapping.service.manager;
 
 import cn.lqs.quick_mapping.entity.response.UserTokenNote;
-import cn.lqs.quick_mapping.util.AesUtil;
+import cn.lqs.quick_mapping.infrastructure.util.AesUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

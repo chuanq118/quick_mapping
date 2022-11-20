@@ -2,7 +2,7 @@ package cn.lqs.quick_mapping.handler.mapping;
 
 import cn.lqs.quick_mapping.entity.resource.ResourceItem;
 import cn.lqs.quick_mapping.service.LocalFsService;
-import cn.lqs.quick_mapping.util.RandomUtil;
+import cn.lqs.quick_mapping.infrastructure.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;

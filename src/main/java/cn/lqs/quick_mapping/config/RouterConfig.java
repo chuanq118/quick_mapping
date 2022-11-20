@@ -3,6 +3,7 @@ package cn.lqs.quick_mapping.config;
 import cn.lqs.quick_mapping.entity.response.UserTokenNote;
 import cn.lqs.quick_mapping.handler.*;
 import cn.lqs.quick_mapping.service.manager.TokenManager;
+import cn.lqs.quick_mapping.user.rest.handler.UserHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +15,10 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static cn.lqs.quick_mapping.config.QMConstants.REST_CONTEXT_PATH;
 import static cn.lqs.quick_mapping.config.QMConstants.TOKEN_HEAD_NAME;
+import static cn.lqs.quick_mapping.user.rest.handler.UserHandler.USER_EXISTS_PATH;
+import static cn.lqs.quick_mapping.user.rest.handler.UserHandler.USER_REGISTRY_PATH;
 
 
 /**
@@ -81,9 +85,9 @@ public class RouterConfig {
 
                         /*  ####################  用户类接口  ######################  */
                         // 获取所有原始路由
-                        .GET(prefix + "/system/menu/admin", userHandler::getAdminMenuList)
-                        // 获取用户路由
-                        .GET(prefix + "/system/menu/user", userHandler::getUserMenuList)
+                        // .GET(prefix + "/system/menu/admin", userHandler::getAdminMenuList)
+                        // // 获取用户路由
+                        // .GET(prefix + "/system/menu/user", userHandler::getUserMenuList)
 
                         /* #################### 系统相关接口 ########################## */
                         // 获取系统版本
@@ -96,11 +100,11 @@ public class RouterConfig {
 
                 /* ######################## 无需认证的相关接口 ####################### */
                 // #登录获取 token
-                .POST(prefix + "/token", RequestPredicates.accept(MediaType.APPLICATION_JSON), userHandler::loginToken)
+                // .POST(REST_CONTEXT_PATH + "/token", RequestPredicates.accept(MediaType.APPLICATION_JSON), userHandler::loginToken)
                 // #用户名是否存在
-                .GET(prefix + "/user/exists", userHandler::checkUserExists)
+                .GET(REST_CONTEXT_PATH + USER_EXISTS_PATH, RequestPredicates.accept(MediaType.APPLICATION_JSON), userHandler::queryExists)
                 // #注册新用户
-                .POST(prefix + "/user/register", RequestPredicates.accept(MediaType.APPLICATION_JSON), userHandler::registerNewUser)
+                .POST(REST_CONTEXT_PATH + USER_REGISTRY_PATH, RequestPredicates.accept(MediaType.APPLICATION_JSON), userHandler::register)
                 .build();
     }
 }

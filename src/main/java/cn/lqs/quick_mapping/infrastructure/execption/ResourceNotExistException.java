@@ -1,4 +1,4 @@
-package cn.lqs.quick_mapping.execption;
+package cn.lqs.quick_mapping.infrastructure.execption;
 
 /**
  * 2022/9/18 13:09

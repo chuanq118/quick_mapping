@@ -9,12 +9,12 @@ import cn.lqs.quick_mapping.entity.route.Meta;
 import cn.lqs.quick_mapping.entity.route.UserRoute;
 import cn.lqs.quick_mapping.entity.user.UserInfo;
 import cn.lqs.quick_mapping.entity.user.UserTokenInfo;
-import cn.lqs.quick_mapping.execption.UserBadCredentialsException;
-import cn.lqs.quick_mapping.execption.UserNotExistsException;
+import cn.lqs.quick_mapping.infrastructure.execption.UserBadCredentialsException;
+import cn.lqs.quick_mapping.infrastructure.execption.UserNotExistsException;
+import cn.lqs.quick_mapping.infrastructure.util.LogMarkers;
+import cn.lqs.quick_mapping.infrastructure.util.PatternUtil;
 import cn.lqs.quick_mapping.service.UserService;
 import cn.lqs.quick_mapping.service.manager.TokenManager;
-import cn.lqs.quick_mapping.util.LogMarkers;
-import cn.lqs.quick_mapping.util.PatternUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -38,7 +37,8 @@ import java.util.Optional;
  * created by @lqs
  */
 @Slf4j
-@Component
+@Deprecated
+// @Component
 public class UserHandler implements InitializingBean {
 
     private final static UserInfo ADMIN = new UserInfo(0, List.of("SA", "admin", "Auditor"), 1, "Administrator");

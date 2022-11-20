@@ -5,7 +5,7 @@ import cn.lqs.quick_mapping.entity.UniResponse;
 import cn.lqs.quick_mapping.entity.request.ResourceCreatorRecord;
 import cn.lqs.quick_mapping.entity.resource.ResourceItem;
 import cn.lqs.quick_mapping.entity.resource.SourceType;
-import cn.lqs.quick_mapping.execption.ResourceNotExistException;
+import cn.lqs.quick_mapping.infrastructure.execption.ResourceNotExistException;
 import cn.lqs.quick_mapping.handler.mapping.ResourceMappingHandler;
 import cn.lqs.quick_mapping.service.LocalFsService;
 import lombok.extern.slf4j.Slf4j;
