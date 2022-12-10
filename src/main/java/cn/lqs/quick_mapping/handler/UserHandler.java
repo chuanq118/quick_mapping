@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -66,7 +65,7 @@ public class UserHandler implements InitializingBean {
 
     private UserRoute USER_ROUTE;
 
-    @Autowired
+    // @Autowired
     public UserHandler(ObjectMapper objectMapper, UserService userService, TokenManager<UserTokenNote> tokenManager) {
         this.objectMapper = objectMapper;
         this.userService = userService;

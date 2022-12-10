@@ -2,10 +2,12 @@ package cn.lqs.quick_mapping.service;
 
 import cn.lqs.quick_mapping.entity.user.UserInfo;
 
+
 /**
  * @author @lqs
  * @createAt 2022/10/12 11:04
  */
+@Deprecated
 public interface UserService {
 
     /**

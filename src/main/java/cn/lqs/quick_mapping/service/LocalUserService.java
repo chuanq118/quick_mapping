@@ -5,7 +5,6 @@ import cn.lqs.quick_mapping.infrastructure.util.LogMarkers;
 import cn.lqs.quick_mapping.infrastructure.util.ObjectIO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -20,7 +19,8 @@ import static cn.lqs.quick_mapping.config.QMConstants.USER_INFO_F_NAME;
  * @createAt 2022/10/14 17:30
  */
 @Slf4j
-@Service
+// @Service
+@Deprecated
 public class LocalUserService implements UserService {
     
     @Override
