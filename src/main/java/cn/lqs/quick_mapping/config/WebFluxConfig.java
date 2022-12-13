@@ -1,6 +1,9 @@
 package cn.lqs.quick_mapping.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.codec.ServerCodecConfigurer;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
@@ -12,7 +15,7 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableWebFlux
-public class WebConfig implements WebFluxConfigurer {
+public class WebFluxConfig implements WebFluxConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -26,13 +29,10 @@ public class WebConfig implements WebFluxConfigurer {
                 // .maxAge(Duration.ofHours(24).toSeconds());
     }
 
-
-    // @Override
-    // public void configureViewResolvers(ViewResolverRegistry registry) {
-    //     Jackson2JsonEncoder encoder = new Jackson2JsonEncoder();
-    //     ObjectMapper objectMapper = new ObjectMapper();
-    //     objectMapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
-    //     encoder.setObjectMapper(objectMapper);
-    //     registry.defaultViews(new HttpMessageWriterView(encoder));
-    // }
+    @Override
+    public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
+        Jackson2JsonEncoder jackson2JsonEncoder = new Jackson2JsonEncoder();
+        jackson2JsonEncoder.getObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+        configurer.defaultCodecs().jackson2JsonEncoder(jackson2JsonEncoder);
+    }
 }

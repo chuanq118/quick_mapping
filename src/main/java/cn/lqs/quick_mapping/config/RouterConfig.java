@@ -1,9 +1,7 @@
 package cn.lqs.quick_mapping.config;
 
-import cn.lqs.quick_mapping.entity.response.UserTokenNote;
+import cn.lqs.quick_mapping.auth.token.TokenManager;
 import cn.lqs.quick_mapping.handler.*;
-import cn.lqs.quick_mapping.service.manager.TokenManager;
-import cn.lqs.quick_mapping.user.rest.handler.UserHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +25,8 @@ import static cn.lqs.quick_mapping.config.QMConstants.TOKEN_HEAD_NAME;
 public class RouterConfig {
 
     private final IndexHandler indexHandler;
-    private final UserHandler userHandler;
+
+    private final UserSettingHandler userSettingHandler;
 
     private final UserAuthHandler userAuthHandler;
 
@@ -35,12 +34,12 @@ public class RouterConfig {
     private final SystemController systemController;
     private final UploadController uploadController;
     private final ResourceController resourceController;
-    private final TokenManager<UserTokenNote> tokenManager;
+    private final TokenManager tokenManager;
 
     @Autowired
-    public RouterConfig(IndexHandler indexHandler, UserHandler userHandler, UserAuthHandler userAuthHandler, ResourceHandler resourceHandler, SystemController systemController, UploadController uploadController, ResourceController resourceController, TokenManager<UserTokenNote> tokenManager) {
+    public RouterConfig(IndexHandler indexHandler, UserSettingHandler userSettingHandler, UserAuthHandler userAuthHandler, ResourceHandler resourceHandler, SystemController systemController, UploadController uploadController, ResourceController resourceController, TokenManager tokenManager) {
         this.indexHandler = indexHandler;
-        this.userHandler = userHandler;
+        this.userSettingHandler = userSettingHandler;
         this.userAuthHandler = userAuthHandler;
         this.resourceHandler = resourceHandler;
         this.systemController = systemController;
@@ -56,7 +55,7 @@ public class RouterConfig {
         return RouterFunctions.route()
                 /* ######################## 无需认证的相关接口 ####################### */
                 // #登录获取 token
-                .POST(REST_CONTEXT_PATH + UserAuthHandler.AUTH_PATH,
+                .POST(REST_CONTEXT_PATH + userAuthHandler.AUTH_PATH,
                         RequestPredicates.accept(MediaType.APPLICATION_JSON),
                         userAuthHandler::authenticateForToken)
                 .nest(RequestPredicates.all(), builder -> builder
@@ -90,6 +89,9 @@ public class RouterConfig {
                         .GET(prefix + "/resource/content_type", resourceHandler::querySuitableContentType)
 
                         /*  ####################  用户类接口  ######################  */
+                        // 更新用户自定义设置
+                        .POST(REST_CONTEXT_PATH + userSettingHandler.SETTINGS_PATH,
+                                RequestPredicates.accept(MediaType.APPLICATION_JSON), userSettingHandler::updateSettings)
                         // 获取所有原始路由
                         // .GET(prefix + "/system/menu/admin", userHandler::getAdminMenuList)
                         // // 获取用户路由

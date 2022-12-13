@@ -37,8 +37,10 @@ public class TokenManager {
     }
 
     public boolean validToken(String key) {
-        if (inMemToken != null && StringUtils.hasText(key) && inMemToken.getExpiredAt() > System.currentTimeMillis()) {
-            return inMemToken.getKey().equals(key);
+        if (inMemToken != null && StringUtils.hasText(key)) {
+            if (inMemToken.getExpiredAt() > System.currentTimeMillis()) {
+                return inMemToken.getKey().equals(key);
+            }
         }
         return false;
     }

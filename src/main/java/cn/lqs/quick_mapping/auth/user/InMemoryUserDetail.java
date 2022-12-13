@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -30,6 +32,8 @@ public final class InMemoryUserDetail {
     private String username;
     private String password;
 
+    private String passwordMD5;
+
     private final static Pattern USERNAME_PAT = Pattern.compile("^[a-zA-Z0-9_]{4}$");
     private final static Pattern PASSWORD_PAT = Pattern.compile("^[a-zA-Z0-9_@#$&]{4,15}$");
 
@@ -47,6 +51,16 @@ public final class InMemoryUserDetail {
             this.username = "quick_mapping";
             this.password = "quick_mapping";
         }
+        this.passwordMD5 = DigestUtils.md5DigestAsHex(this.password.getBytes(StandardCharsets.UTF_8));
+    }
+
+
+    public boolean validateUP(String username, String password) {
+        boolean isOk = StringUtils.hasText(username) && StringUtils.hasText(password) && this.username.length() == username.length();
+        if (isOk) {
+            return this.passwordMD5.equalsIgnoreCase(password);
+        }
+        return false;
     }
 
     public boolean setUsername(String username) {
@@ -62,6 +76,7 @@ public final class InMemoryUserDetail {
         Matcher matcher = PASSWORD_PAT.matcher(password);
         if (matcher.find()) {
             this.password = password;
+            this.passwordMD5 = DigestUtils.md5DigestAsHex(this.password.getBytes(StandardCharsets.UTF_8));
             return saveToUserF();
         }
         return false;

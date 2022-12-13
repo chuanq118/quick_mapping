@@ -23,7 +23,8 @@ public class QMConstants {
             "data", "mapping").toFile();
 
 
-    public final static String USER_INFO_F_NAME = ".userinfo";
+    public final static String USER_INFO_F_NAME = ".user_info";
+    public final static String USER_SETTINGS_F_NAME = ".user_settings";
 
     public final static String TOKEN_HEAD_NAME = "Authorization";
 

@@ -6,8 +6,6 @@ spring:
   application:
     name: Quick_Mapping
     version: 2.0
-  jackson:
-    default-property-inclusion: non_default
   profiles:
     default: dev
     active: dev

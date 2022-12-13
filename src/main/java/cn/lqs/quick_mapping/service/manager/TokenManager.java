@@ -4,6 +4,7 @@ package cn.lqs.quick_mapping.service.manager;
  * 管理 token 相关的服务接口
  * @author @lqs
  */
+@Deprecated
 public interface TokenManager<T> {
 
     /**

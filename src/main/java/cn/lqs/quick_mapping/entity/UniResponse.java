@@ -17,4 +17,16 @@ public class UniResponse<T> {
     private String message;
     private T data;
 
+    public static UniResponse<Void> create(int code, String message) {
+        return new UniResponse<>(code, message, null);
+    }
+
+    public static <TYPE> UniResponse<TYPE> create(int code, TYPE data) {
+        return new UniResponse<>(code, null, data);
+    }
+
+    public static <TYPE> UniResponse<TYPE> create(int code, String message, TYPE data) {
+        return new UniResponse<>(code, message, data);
+    }
+
 }
