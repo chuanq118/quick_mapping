@@ -17,6 +17,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static cn.lqs.quick_mapping.config.QMConstants.REST_CONTEXT_PATH;
 
@@ -28,6 +29,7 @@ import static cn.lqs.quick_mapping.config.QMConstants.REST_CONTEXT_PATH;
 public class UserAuthHandler {
 
     public final String AUTH_PATH = "/auth";
+    public final String ACCOUNT_UPDATE_PATH = "/account/update";
 
     private final InMemoryUserDetail userDetail;
     private final TokenManager tokenManager;
@@ -40,6 +42,7 @@ public class UserAuthHandler {
 
     /**
      * 登录验证获取 token
+     *
      * @param request post
      * @return {@link AuthToken}
      */
@@ -72,6 +75,29 @@ public class UserAuthHandler {
                 });
     }
 
+    public Mono<ServerResponse> updateUP(ServerRequest request) {
+        log.info("Try update U/P...");
+        Optional<String> username = request.queryParam("username");
+        Optional<String> password = request.queryParam("password");
+        boolean pwOk = password.isEmpty();
+        boolean unOk = username.isEmpty();
+        if (!pwOk) {
+            Optional<String> prePassword = request.queryParam("pre-password");
+            if (prePassword.isPresent() && prePassword.get().equals(userDetail.getPassword())
+                    && userDetail.setPassword(password.get())) {
+                log.info("Update Password to new [{}]", userDetail.getPassword());
+                pwOk = true;
+            }
+        }
+        if (!unOk && userDetail.setUsername(username.get())) {
+            log.info("Update Username to new [{}]", userDetail.getUsername());
+            unOk = true;
+        }
+        return pwOk && unOk ? ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(UniResponse.create(HttpStatus.OK.value(), HttpStatus.OK.name()))
+                : ServerResponse.ok().bodyValue(UniResponse.create(HttpStatus.BAD_REQUEST.value(),
+                "update failed! Please check your username/password pattern."));
+    }
 
 
 }

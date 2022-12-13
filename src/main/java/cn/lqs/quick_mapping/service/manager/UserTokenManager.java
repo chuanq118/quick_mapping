@@ -16,6 +16,7 @@ import javax.crypto.IllegalBlockSizeException;
  */
 @Slf4j
 @Service
+@Deprecated
 public class UserTokenManager implements TokenManager<UserTokenNote>{
 
     private final ObjectMapper objectMapper;

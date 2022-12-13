@@ -69,7 +69,7 @@ public class RouterConfig {
                                     return next.handle(request);
                                 }
                             }
-                            return ServerResponse.status(HttpStatus.FORBIDDEN).build();
+                            return ServerResponse.status(HttpStatus.UNAUTHORIZED).build();
                         })
 
                         /* ######################### 资源相关接口 ######################### */
@@ -89,9 +89,14 @@ public class RouterConfig {
                         .GET(prefix + "/resource/content_type", resourceHandler::querySuitableContentType)
 
                         /*  ####################  用户类接口  ######################  */
+                        // 获取用户设置
+                        .GET(REST_CONTEXT_PATH + userSettingHandler.SETTINGS_PATH, userSettingHandler::getSettings)
                         // 更新用户自定义设置
                         .POST(REST_CONTEXT_PATH + userSettingHandler.SETTINGS_PATH,
                                 RequestPredicates.accept(MediaType.APPLICATION_JSON), userSettingHandler::updateSettings)
+                        // 更新用户名/密码
+                        .GET(REST_CONTEXT_PATH + userAuthHandler.ACCOUNT_UPDATE_PATH, userAuthHandler::updateUP)
+
                         // 获取所有原始路由
                         // .GET(prefix + "/system/menu/admin", userHandler::getAdminMenuList)
                         // // 获取用户路由

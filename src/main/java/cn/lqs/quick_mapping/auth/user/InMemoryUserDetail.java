@@ -34,8 +34,8 @@ public final class InMemoryUserDetail {
 
     private String passwordMD5;
 
-    private final static Pattern USERNAME_PAT = Pattern.compile("^[a-zA-Z0-9_]{4}$");
-    private final static Pattern PASSWORD_PAT = Pattern.compile("^[a-zA-Z0-9_@#$&]{4,15}$");
+    private final static Pattern USERNAME_PAT = Pattern.compile("^[a-zA-Z0-9_]{4,24}$");
+    private final static Pattern PASSWORD_PAT = Pattern.compile("^[a-zA-Z0-9_@#$]{4,24}$");
 
     @Autowired
     public InMemoryUserDetail() throws IOException, IllegalBlockSizeException, BadPaddingException {
@@ -47,9 +47,9 @@ public final class InMemoryUserDetail {
             this.username = up[0];
             this.password = up[1];
         } else {
-            log.info("No user info file found. Use default U/P [quick_mapping/quick_mapping]");
-            this.username = "quick_mapping";
-            this.password = "quick_mapping";
+            this.username = "admin";
+            this.password = "admin";
+            log.info("No user info file found. Use default U/P [{}/{}]", this.username, this.password);
         }
         this.passwordMD5 = DigestUtils.md5DigestAsHex(this.password.getBytes(StandardCharsets.UTF_8));
     }

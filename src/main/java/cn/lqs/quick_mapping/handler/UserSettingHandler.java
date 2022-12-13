@@ -13,6 +13,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import static cn.lqs.quick_mapping.config.QMConstants.UNKNOWN_ERROR;
+
 /**
  * 2022/12/13
  */
@@ -35,7 +37,6 @@ public class UserSettingHandler {
                             if (signal.hasValue()) {
                                 OneSettingRequestBody setting = signal.get();
                                 assert setting != null;
-                                log.info("accept setting [{}: {}]", setting.getKey(), setting.getValue());
                                 switch (setting.getKey()) {
                                     case "night_mode" ->
                                             userSettingsManager.updateNightMode(Boolean.parseBoolean(setting.getValue()));
@@ -44,7 +45,12 @@ public class UserSettingHandler {
                                     case "avatar" -> userSettingsManager.updateAvatar(setting.getValue());
                                     case "theme_color" -> userSettingsManager.updateThemeColor(setting.getValue());
                                     case "language" -> userSettingsManager.updateLanguage(setting.getValue());
+                                    default -> {
+                                        log.warn("unknown setting [{}: {}]", setting.getKey(), setting.getValue());
+                                        return;
+                                    }
                                 }
+                                log.info("accept and update setting [{}: {}]", setting.getKey(), setting.getValue());
                             }
                         })
                 .count()
@@ -54,9 +60,21 @@ public class UserSettingHandler {
                             .bodyValue(UniResponse.create(HttpStatus.OK.value(), HttpStatus.OK.name()));})
                 .onErrorResume(throwable -> {
                     ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                    pd.setTitle("Unknown Error");
+                    pd.setTitle(UNKNOWN_ERROR);
                     pd.setDetail(throwable.getMessage());
                     return ServerResponse.ok().bodyValue(UniResponse.create(HttpStatus.INTERNAL_SERVER_ERROR.value(), pd));
+                });
+    }
+
+    public Mono<ServerResponse> getSettings(ServerRequest request) {
+        return ServerResponse.ok()
+                .bodyValue(UniResponse.create(HttpStatus.OK.value(), userSettingsManager.getSettings()))
+                .onErrorResume(e -> {
+                    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                    pd.setDetail(e.getMessage());
+                    pd.setTitle(UNKNOWN_ERROR);
+                    return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .bodyValue(UniResponse.create(HttpStatus.INTERNAL_SERVER_ERROR.value(), pd));
                 });
     }
 }
