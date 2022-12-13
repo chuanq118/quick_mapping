@@ -15,8 +15,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @Service
 public class TokenManager {
 
-    private final static long TWO_HOURS_TO_SECONDS = 2 * 3600;
-    private final static long ONE_MONTH_TO_SECONDS = 30 * 24 * 3600;
+    private final static long TWO_HOURS_TO_SECONDS = 2L * 3600 * 1000;
+    private final static long ONE_MONTH_TO_SECONDS = 30L * 24 * 3600 * 1000;
 
     private volatile AuthToken inMemToken;
 
