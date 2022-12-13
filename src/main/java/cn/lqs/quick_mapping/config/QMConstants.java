@@ -27,5 +27,5 @@ public class QMConstants {
 
     public final static String TOKEN_HEAD_NAME = "Authorization";
 
-    public final static String REST_CONTEXT_PATH = "/mapping";
+    public final static String REST_CONTEXT_PATH = "/mapping/api";
 }

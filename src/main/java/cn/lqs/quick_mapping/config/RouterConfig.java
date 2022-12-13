@@ -17,8 +17,6 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import static cn.lqs.quick_mapping.config.QMConstants.REST_CONTEXT_PATH;
 import static cn.lqs.quick_mapping.config.QMConstants.TOKEN_HEAD_NAME;
-import static cn.lqs.quick_mapping.user.rest.handler.UserHandler.USER_EXISTS_PATH;
-import static cn.lqs.quick_mapping.user.rest.handler.UserHandler.USER_REGISTRY_PATH;
 
 
 /**
@@ -31,6 +29,8 @@ public class RouterConfig {
     private final IndexHandler indexHandler;
     private final UserHandler userHandler;
 
+    private final UserAuthHandler userAuthHandler;
+
     private final ResourceHandler resourceHandler;
     private final SystemController systemController;
     private final UploadController uploadController;
@@ -38,9 +38,10 @@ public class RouterConfig {
     private final TokenManager<UserTokenNote> tokenManager;
 
     @Autowired
-    public RouterConfig(IndexHandler indexHandler, UserHandler userHandler, ResourceHandler resourceHandler, SystemController systemController, UploadController uploadController, ResourceController resourceController, TokenManager<UserTokenNote> tokenManager) {
+    public RouterConfig(IndexHandler indexHandler, UserHandler userHandler, UserAuthHandler userAuthHandler, ResourceHandler resourceHandler, SystemController systemController, UploadController uploadController, ResourceController resourceController, TokenManager<UserTokenNote> tokenManager) {
         this.indexHandler = indexHandler;
         this.userHandler = userHandler;
+        this.userAuthHandler = userAuthHandler;
         this.resourceHandler = resourceHandler;
         this.systemController = systemController;
         this.uploadController = uploadController;
@@ -50,9 +51,14 @@ public class RouterConfig {
 
     @Bean
     public RouterFunction<ServerResponse> routes() {
-        final String prefix = "/mapping";
+        final String prefix = "";
         // route 从上到下依次匹配路径,因此具体的路由写到模糊的路由前面十分重要!
         return RouterFunctions.route()
+                /* ######################## 无需认证的相关接口 ####################### */
+                // #登录获取 token
+                .POST(REST_CONTEXT_PATH + UserAuthHandler.AUTH_PATH,
+                        RequestPredicates.accept(MediaType.APPLICATION_JSON),
+                        userAuthHandler::authenticateForToken)
                 .nest(RequestPredicates.all(), builder -> builder
 
                         /* ################ 访问此处的接口需要 token 验证 ######################## */
@@ -97,14 +103,10 @@ public class RouterConfig {
                         // 项目根路径
                         .GET(prefix, RequestPredicates.accept(MediaType.ALL), indexHandler::indexPage)
                 )
-
-                /* ######################## 无需认证的相关接口 ####################### */
-                // #登录获取 token
-                // .POST(REST_CONTEXT_PATH + "/token", RequestPredicates.accept(MediaType.APPLICATION_JSON), userHandler::loginToken)
                 // #用户名是否存在
-                .GET(REST_CONTEXT_PATH + USER_EXISTS_PATH, RequestPredicates.accept(MediaType.APPLICATION_JSON), userHandler::queryExists)
+                // .GET(REST_CONTEXT_PATH + USER_EXISTS_PATH, RequestPredicates.accept(MediaType.APPLICATION_JSON), userHandler::queryExists)
                 // #注册新用户
-                .POST(REST_CONTEXT_PATH + USER_REGISTRY_PATH, RequestPredicates.accept(MediaType.APPLICATION_JSON), userHandler::register)
+                // .POST(REST_CONTEXT_PATH + USER_REGISTRY_PATH, RequestPredicates.accept(MediaType.APPLICATION_JSON), userHandler::register)
                 .build();
     }
 }

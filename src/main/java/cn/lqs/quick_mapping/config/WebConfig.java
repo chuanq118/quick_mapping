@@ -21,10 +21,11 @@ public class WebConfig implements WebFluxConfigurer {
                 .allowedMethods("*")
                 .exposedHeaders("*")
                 .allowedOrigins("http://localhost:2800", "http://localhost:3102","https://www.lqservice.cn", "https://lqservice.cn")
-                .allowCredentials(false);
+                .allowCredentials(true);
                 // By default, this is set to 1800 seconds (30 minutes)
                 // .maxAge(Duration.ofHours(24).toSeconds());
     }
+
 
     // @Override
     // public void configureViewResolvers(ViewResolverRegistry registry) {

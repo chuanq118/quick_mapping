@@ -62,6 +62,17 @@ public class AesUtil {
     }
 
     /**
+     * 加密字节
+     * @param byteContent 原始字节
+     * @return 加密字节
+     * @throws IllegalBlockSizeException ??
+     * @throws BadPaddingException ??
+     */
+    public static byte[] encrypt(byte[] byteContent) throws IllegalBlockSizeException, BadPaddingException {
+        return CIPHER_ENCRYPT.doFinal(byteContent);
+    }
+
+    /**
      * 默认的 AES 解密
      * @param encrypted b64 加密字符串
      * @return 原内容
@@ -70,6 +81,17 @@ public class AesUtil {
         //执行操作
         byte[] result = CIPHER_DECRYPT.doFinal(Base64Util.decodeB64String(encrypted));
         return new String(result, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 解密字节
+     * @param encryptedBytes 加密的字节
+     * @return 原始字节
+     * @throws IllegalBlockSizeException ??
+     * @throws BadPaddingException ??
+     */
+    public static byte[] decrypt(byte[] encryptedBytes) throws IllegalBlockSizeException, BadPaddingException {
+        return CIPHER_DECRYPT.doFinal(encryptedBytes);
     }
 
 

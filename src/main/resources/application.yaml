@@ -1,16 +1,27 @@
 server:
   port: 8088
 
+
 spring:
   application:
     name: Quick_Mapping
-    version: 1.0
+    version: 2.0
   jackson:
     default-property-inclusion: non_default
-  servlet:
-    multipart:
-      max-file-size: 500MB
+  profiles:
+    default: dev
+    active: dev
+
+management:
+  endpoints:
+    web:
+      base-path: /mapping/status
 
 docs:
   api: https://console-docs.apipost.cn/preview/06757b13ae429b20/ae205ac0d0229893
   yuque: https://www.yuque.com/docs/share/dfd81bf7-2496-4720-a190-71c133ea6a73?# 《Quick_Mapping》
+
+qm:
+  auth:
+    username: quick_mapping
+    password: quick_mapping
